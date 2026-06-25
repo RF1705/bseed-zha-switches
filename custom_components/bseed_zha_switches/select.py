@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
-from typing import Any
 
 from homeassistant.components.select import SelectEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntry, async_get as async_get_dr
+from homeassistant.helpers.device_registry import (
+    CONNECTION_NETWORK_MAC,
+    DeviceEntry,
+    async_get as async_get_dr,
+)
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
@@ -33,6 +37,9 @@ from .const import (
     TUYA_MANUFACTURER_CODE,
     ZHA_DOMAIN,
 )
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -69,6 +76,7 @@ async def async_setup_entry(
         for description in _descriptions_for_device(device):
             entities.append(BseedZhaSelectEntity(device, description))
 
+    _LOGGER.info("Adding %s BSEED ZHA switch select entities", len(entities))
     async_add_entities(entities)
 
 
@@ -83,19 +91,58 @@ def _find_bseed_devices(hass: HomeAssistant) -> list[BseedDevice]:
         if ieee is None:
             continue
 
-        manufacturer = device.manufacturer or ""
-        model = device.model or ""
+        bseed_device = _match_bseed_device(device, ieee)
+        if bseed_device is None:
+            continue
 
-        if manufacturer == MANUFACTURER_1_GANG and model == RAW_MODEL:
-            devices.append(BseedDevice(ieee=ieee, model=MODEL_1_GANG, channels=1))
-        elif manufacturer == MANUFACTURER_2_GANG and model == RAW_MODEL:
-            devices.append(BseedDevice(ieee=ieee, model=MODEL_2_GANG, channels=2))
-        elif manufacturer == BSEED_MANUFACTURER and model == MODEL_1_GANG:
-            devices.append(BseedDevice(ieee=ieee, model=MODEL_1_GANG, channels=1))
-        elif manufacturer == BSEED_MANUFACTURER and model == MODEL_2_GANG:
-            devices.append(BseedDevice(ieee=ieee, model=MODEL_2_GANG, channels=2))
+        _LOGGER.info(
+            "Found BSEED ZHA switch: ieee=%s model=%s channels=%s",
+            bseed_device.ieee,
+            bseed_device.model,
+            bseed_device.channels,
+        )
+        devices.append(bseed_device)
 
     return devices
+
+
+def _match_bseed_device(device: DeviceEntry, ieee: str) -> BseedDevice | None:
+    """Match a Home Assistant device registry entry to a supported BSEED switch."""
+
+    manufacturer = device.manufacturer or ""
+    model = device.model or ""
+    text = " ".join(
+        str(value)
+        for value in (
+            manufacturer,
+            model,
+            getattr(device, "name", None),
+            getattr(device, "name_by_user", None),
+        )
+        if value
+    )
+
+    if manufacturer == MANUFACTURER_1_GANG:
+        return BseedDevice(ieee=ieee, model=MODEL_1_GANG, channels=1)
+
+    if manufacturer == MANUFACTURER_2_GANG:
+        return BseedDevice(ieee=ieee, model=MODEL_2_GANG, channels=2)
+
+    if model == MODEL_1_GANG or MODEL_1_GANG in text:
+        return BseedDevice(ieee=ieee, model=MODEL_1_GANG, channels=1)
+
+    if model == MODEL_2_GANG or MODEL_2_GANG in text:
+        return BseedDevice(ieee=ieee, model=MODEL_2_GANG, channels=2)
+
+    if manufacturer == BSEED_MANUFACTURER and model == RAW_MODEL:
+        _LOGGER.warning(
+            "Found BSEED TS0726 device without exact model information: ieee=%s. "
+            "Assuming EC-GL86ZPCS21 with 2 channels.",
+            ieee,
+        )
+        return BseedDevice(ieee=ieee, model=MODEL_2_GANG, channels=2)
+
+    return None
 
 
 def _ieee_from_device(device: DeviceEntry) -> str | None:
@@ -104,6 +151,10 @@ def _ieee_from_device(device: DeviceEntry) -> str | None:
     for domain, identifier in device.identifiers:
         if domain == ZHA_DOMAIN:
             return str(identifier)
+
+    for connection_type, address in device.connections:
+        if connection_type == CONNECTION_NETWORK_MAC:
+            return str(address)
 
     return None
 
