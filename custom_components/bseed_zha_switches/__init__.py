@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 
 from .const import DOMAIN
+from .runtime_quirks import install_runtime_attribute_defs
 
 PLATFORMS = ["select"]
 
@@ -20,6 +21,8 @@ async def async_setup(hass, config):
 
 async def async_setup_entry(hass, entry):
     """Set up BSEED ZHA Switches from a config entry."""
+
+    install_runtime_attribute_defs()
 
     try:
         from . import quirks  # noqa: F401
