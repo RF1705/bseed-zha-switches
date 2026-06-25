@@ -14,6 +14,12 @@ The integration creates dropdown entities for:
 - Switch mode per channel: `switch`, `scene`
 - Power-on behavior per channel: `off`, `on`, `previous`
 
+The integration also creates a **Last action** sensor. When a switch channel is
+set to scene mode and a button is pressed, the sensor updates to:
+
+- `scene_1`
+- `scene_2`
+
 It also bundles ZHA quirk classes for the two switches. The bundled quirks add:
 
 - BSEED manufacturer/model display names

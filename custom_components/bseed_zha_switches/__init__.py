@@ -7,7 +7,7 @@ import logging
 from .const import DOMAIN
 from .runtime_quirks import install_runtime_attribute_defs
 
-PLATFORMS = ["select"]
+PLATFORMS = ["select", "sensor"]
 
 _LOGGER = logging.getLogger(__name__)
 
