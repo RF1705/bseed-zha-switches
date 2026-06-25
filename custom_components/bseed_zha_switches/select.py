@@ -153,7 +153,7 @@ def _ieee_from_device(device: DeviceEntry) -> str | None:
             continue
 
         domain = identifier[0]
-        value = identifier[-1]
+        value = identifier[1]
 
         if domain == ZHA_DOMAIN:
             return str(value)
@@ -258,6 +258,16 @@ class BseedZhaSelectEntity(SelectEntity, RestoreEntity):
         """Set the option on the Zigbee device."""
 
         value = self._description.options[option]
+        _LOGGER.info(
+            "Setting BSEED option: ieee=%s endpoint=%s cluster=0x%04x "
+            "attribute=0x%04x option=%s value=%s",
+            self._device.ieee,
+            self._description.endpoint_id,
+            self._description.cluster_id,
+            self._description.attribute_id,
+            option,
+            value,
+        )
 
         await self.hass.services.async_call(
             ZHA_DOMAIN,
