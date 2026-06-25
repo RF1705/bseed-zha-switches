@@ -14,7 +14,6 @@ from .const import (
     ATTR_INDICATOR_MODE,
     ATTR_POWER_ON_BEHAVIOR,
     ATTR_SWITCH_MODE,
-    TUYA_MANUFACTURER_CODE,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -55,27 +54,25 @@ def _register_attribute(
     attr_id: int,
     attr_type: type,
 ) -> None:
-    """Register a manufacturer-specific attribute on a Zigpy cluster class."""
+    """Register a Tuya attribute on a Zigpy cluster class."""
 
     attr_def = ZCLAttributeDef(
         id=attr_id,
         type=attr_type,
         access="rw",
-        manufacturer_code=TUYA_MANUFACTURER_CODE,
     )
     object.__setattr__(attr_def, "name", name)
 
     cluster_cls._attributes_by_id.setdefault(
         attr_def.id, {True: {}, False: {}, None: {}}
     )
-    cluster_cls._attributes_by_id[attr_def.id][True][TUYA_MANUFACTURER_CODE] = attr_def
+    cluster_cls._attributes_by_id[attr_def.id][False][None] = attr_def
     cluster_cls.attributes[attr_def.id] = attr_def
     cluster_cls.attributes_by_name[name] = attr_def
 
     _LOGGER.debug(
-        "Registered BSEED runtime attribute %s on %s: id=0x%04x manufacturer=0x%04x",
+        "Registered BSEED runtime attribute %s on %s: id=0x%04x",
         name,
         cluster_cls.__name__,
         attr_id,
-        TUYA_MANUFACTURER_CODE,
     )

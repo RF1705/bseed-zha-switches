@@ -34,7 +34,6 @@ from .const import (
     OPTION_POWER_ON,
     OPTION_SWITCH_MODE,
     RAW_MODEL,
-    TUYA_MANUFACTURER_CODE,
     ZHA_DOMAIN,
 )
 
@@ -279,7 +278,6 @@ class BseedZhaSelectEntity(SelectEntity, RestoreEntity):
                 "cluster_type": "in",
                 "attribute": self._description.attribute_id,
                 "value": value,
-                "manufacturer": TUYA_MANUFACTURER_CODE,
             },
             blocking=True,
         )
