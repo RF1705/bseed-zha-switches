@@ -1,0 +1,12 @@
+{
+  "domain": "bseed_zha_switches",
+  "name": "BSEED ZHA Switches",
+  "codeowners": ["@RF1705"],
+  "config_flow": true,
+  "dependencies": ["zha"],
+  "documentation": "https://github.com/RF1705/bseed-zha-switches",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/RF1705/bseed-zha-switches/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

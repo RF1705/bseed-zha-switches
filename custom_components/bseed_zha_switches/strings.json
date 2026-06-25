@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "BSEED ZHA Switches",
+        "description": "Create BSEED TS0726 select entities for supported ZHA switches."
+      }
+    },
+    "abort": {
+      "already_configured": "BSEED ZHA Switches is already configured."
+    }
+  }
+}
