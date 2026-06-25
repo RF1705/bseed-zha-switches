@@ -148,11 +148,23 @@ def _match_bseed_device(device: DeviceEntry, ieee: str) -> BseedDevice | None:
 def _ieee_from_device(device: DeviceEntry) -> str | None:
     """Extract the ZHA IEEE identifier from a Home Assistant device entry."""
 
-    for domain, identifier in device.identifiers:
-        if domain == ZHA_DOMAIN:
-            return str(identifier)
+    for identifier in device.identifiers:
+        if len(identifier) < 2:
+            continue
 
-    for connection_type, address in device.connections:
+        domain = identifier[0]
+        value = identifier[-1]
+
+        if domain == ZHA_DOMAIN:
+            return str(value)
+
+    for connection in device.connections:
+        if len(connection) < 2:
+            continue
+
+        connection_type = connection[0]
+        address = connection[-1]
+
         if connection_type == CONNECTION_NETWORK_MAC:
             return str(address)
 

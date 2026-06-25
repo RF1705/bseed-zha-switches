@@ -130,7 +130,7 @@ class BseedSwitchType(t.enum8):
     Momentary = 0x02
 
 
-class BseedTS0726OnOffCluster(CustomCluster, OnOff, EventableCluster):
+class BseedTS0726OnOffCluster(EventableCluster, OnOff):
     """OnOff cluster with TS0726 backlight attributes and scene actions."""
 
     class AttributeDefs(OnOff.AttributeDefs):
