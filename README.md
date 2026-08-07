@@ -1,5 +1,7 @@
 # BSEED ZHA Switches
 
+[![GitHub Downloads](https://img.shields.io/github/downloads/RF1705/bseed-zha-switches/total)](https://github.com/RF1705/bseed-zha-switches/releases)
+
 Home Assistant HACS integration for BSEED TS0726 ZHA switches.
 
 Supported devices:
